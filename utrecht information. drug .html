@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>اختراق الجهاز... (خطر جدًا)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: black; color: #0f0; font-family: 'Courier New', Courier, monospace; overflow: hidden; height: 100vh; user-select: none; }
+    #console { padding: 20px; height: 100vh; overflow-y: auto; white-space: pre-wrap; }
+    .shake { animation: shake 0.3s infinite; }
+    @keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px); } 50% { transform: translate(2px, -2px); } 75% { transform: translate(-2px, -2px); } }
+    .red-screen { background: #2e0000 !important; }
+    #scary { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: url('https://i.imgur.com/5QF5rGI.png') center/cover no-repeat; display: none; z-index: 9999; }
+    .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: black; color: red; border: 2px solid red; padding: 20px; z-index: 10000; font-size: 20px; text-align: center; }
+    .matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .matrix span { position: absolute; color: #0f0; font-size: 16px; animation: fall 1s linear infinite; }
+    @keyframes fall { 0% { top: -20px; opacity: 1; } 100% { top: 100vh; opacity: 0; } }
+    #fake-mouse { width: 20px; height: 20px; border: 2px solid #0f0; position: fixed; z-index: 999; border-radius: 50%; pointer-events: none; }
+    .warning { color: red; font-size: 18px; margin-top: 20px; }
+    #error-sound { display: none; }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+  <div id="console"></div>
+  <div id="scary"></div>
+  <div class="matrix" id="matrix"></div>
+  <div id="fake-mouse"></div>
+
+  <audio id="audio" loop autoplay>
+    <source src="https://cdn.pixabay.com/download/audio/2021/11/30/audio_ef7c6e719f.mp3" type="audio/mp3">
+  </audio>
+  <audio id="error-sound" autoplay loop>
+    <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+  </audio>
+
+  <script>
+    const consoleEl = document.getElementById("console");
+    const scaryEl = document.getElementById("scary");
+    const matrix = document.getElementById("matrix");
+    const fakeMouse = document.getElementById("fake-mouse");
+
+    const lines = [
+      "جارٍ تشغيل النظام...",
+      "الاتصال بالشبكة السوداء...",
+      "اختراق جدار الحماية...",
+      "تحميل أدوات التنصت...",
+      "تفعيل الكاميرا والميكروفون...",
+      "تحكم خارجي تم تفعيله...",
+      "",
+      "==> جهازك الآن تحت سيطرتنا الكاملة <==",
+      "يتم الآن تسجيل كل ما تقوله وتراه الكاميرا.",
+      "جارٍ إرسال البيانات إلى السيرفر...",
+      "تم اختراق النظام بنجاح بواسطة (IBRAHIM)",
+      "جارٍ تشفير ملفاتك...",
+      "==> أدخل كلمة المرور لفك التشفير <=="
+    ];
+
+    let i = 0;
+
+    function typeLine() {
+      if (i < lines.length) {
+        const line = lines[i];
+        consoleEl.innerHTML += line + "\n";
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+
+        if (line.includes("سيطرتنا")) {
+          document.body.classList.add("shake");
+        }
+
+        if (line.includes("كلمة المرور")) {
+          document.body.classList.add("red-screen");
+          showPopup();
+          setTimeout(() => scaryEl.style.display = "block", 8000);
+        }
+
+        i++;
+        setTimeout(typeLine, 1500); // زيادة التأخير لجعل التأثير أبطأ وأكثر رعبًا
+      }
+    }
+
+    function showPopup() {
+      const popup = document.createElement("div");
+      popup.className = "popup";
+      popup.innerHTML = `
+        <p>يرجى إدخال كلمة المرور</p>
+        <input type='password' placeholder='********'><br><br>
+        <button onclick='fakeLogin()'>إرسال</button>`;
+      document.body.appendChild(popup);
+    }
+
+    function fakeLogin() {
+      alert("كلمة المرور خاطئة! سيتم حذف ملفاتك.");
+      setTimeout(() => location.reload(), 4000);
+    }
+
+    function generateMatrix() {
+      const chars = '01@#$%&';
+      const columns = Math.floor(window.innerWidth / 16);
+      const drops = Array(columns).fill(0);
+
+      setInterval(() => {
+        for (let i = 0; i < columns; i++) {
+          const span = document.createElement("span");
+          span.textContent = chars[Math.floor(Math.random() * chars.length)];
+          span.style.left = `${i * 16}px`;
+          span.style.top = `${drops[i] * 16}px`;
+          matrix.appendChild(span);
+          drops[i] = (drops[i] * 16 > window.innerHeight) ? 0 : drops[i] + 1;
+          setTimeout(() => span.remove(), 1000);
+        }
+      }, 50);
+    }
+
+    function moveFakeMouse() {
+      let x = 100;
+      let y = 100;
+      setInterval(() => {
+        x += (Math.random() - 0.5) * 20;
+        y += (Math.random() - 0.5) * 20;
+        fakeMouse.style.left = `${x}px`;
+        fakeMouse.style.top = `${y}px`;
+      }, 300);
+    }
+
+    // طلب إذن الكاميرا والميكروفون
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(() => console.log("تم تفعيل الكاميرا"))
+      .catch(() => console.log("تم رفض الكاميرا"));
+
+    // منع الرجوع
+    history.pushState(null, null, location.href);
+    window.onpopstate = () => history.go(1);
+
+    window.addEventListener("beforeunload", function (e) {
+      e.preventDefault();
+      e.returnValue = '';
+    });
+
+    // تشغيل
+    generateMatrix();
+    moveFakeMouse();
+    typeLine();
+  </script>
+</body>
+</html>
